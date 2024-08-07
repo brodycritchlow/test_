@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# This will have more and more as we progress
 LINUX_LATEST_BINARY_URL="https://github.com/Winch-Team/winch/releases/download/v0.1.0/winch-gnu-linux-x86_64"
 MACOS_LATEST_BINARY_URL="https://github.com/Winch-Team/winch/releases/download/v0.1.0/winch-macos-x86_64"
 
