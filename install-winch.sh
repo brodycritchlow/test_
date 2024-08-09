@@ -19,7 +19,7 @@ ZSH_COMPLETION_URL="https://raw.githubusercontent.com/Winch-Team/install-winch/m
 printf "\033[1;32mThis script will install Winch to the system. Continue? (Y/n) \033[0m"
 read -r RESPONSE </dev/tty
 
-if [[ "$RESPONSE" == "y" ]] || [[ "$RESPONSE" == "Y" ]] || [[ -z "$RESPONSE" ]]; then
+if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
     # Green
     printf "\033[1;32mInstalling Winch...\033[0m\n"
 
