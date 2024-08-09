@@ -1,0 +1,206 @@
+#compdef winch
+
+autoload -U is-at-least
+
+_winch() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_winch_commands" \
+"*::: :->winch" \
+&& ret=0
+    case $state in
+    (winch)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:winch-command-$line[1]:"
+        case $line[1] in
+            (install)
+_arguments "${_arguments_options[@]}" : \
+'-v+[]: : ' \
+'--version=[]: : ' \
+'-r+[]: : ' \
+'--repo=[]: : ' \
+'-l+[]: : ' \
+'--local=[]: : ' \
+'-h[Print help]' \
+'--help[Print help]' \
+':package:' \
+&& ret=0
+;;
+(remove)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+':package:' \
+&& ret=0
+;;
+(upgrade)
+_arguments "${_arguments_options[@]}" : \
+'-r+[]: : ' \
+'--repo=[]: : ' \
+'-h[Print help]' \
+'--help[Print help]' \
+'::package:' \
+&& ret=0
+;;
+(search)
+_arguments "${_arguments_options[@]}" : \
+'-l[]' \
+'--local[]' \
+'-h[Print help]' \
+'--help[Print help]' \
+':package:' \
+&& ret=0
+;;
+(sync)
+_arguments "${_arguments_options[@]}" : \
+'-r+[]: : ' \
+'--repo=[]: : ' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_winch__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:winch-help-command-$line[1]:"
+        case $line[1] in
+            (install)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(remove)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(upgrade)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(search)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(sync)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_winch_commands] )) ||
+_winch_commands() {
+    local commands; commands=(
+'install:install a package' \
+'remove:Remove a package that is installed' \
+'upgrade:upgrade package(s)' \
+'search:search for a package' \
+'sync:Sync your local cache with remote index servers' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'winch commands' commands "$@"
+}
+(( $+functions[_winch__help_commands] )) ||
+_winch__help_commands() {
+    local commands; commands=(
+'install:install a package' \
+'remove:Remove a package that is installed' \
+'upgrade:upgrade package(s)' \
+'search:search for a package' \
+'sync:Sync your local cache with remote index servers' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'winch help commands' commands "$@"
+}
+(( $+functions[_winch__help__help_commands] )) ||
+_winch__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch help help commands' commands "$@"
+}
+(( $+functions[_winch__help__install_commands] )) ||
+_winch__help__install_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch help install commands' commands "$@"
+}
+(( $+functions[_winch__help__remove_commands] )) ||
+_winch__help__remove_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch help remove commands' commands "$@"
+}
+(( $+functions[_winch__help__search_commands] )) ||
+_winch__help__search_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch help search commands' commands "$@"
+}
+(( $+functions[_winch__help__sync_commands] )) ||
+_winch__help__sync_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch help sync commands' commands "$@"
+}
+(( $+functions[_winch__help__upgrade_commands] )) ||
+_winch__help__upgrade_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch help upgrade commands' commands "$@"
+}
+(( $+functions[_winch__install_commands] )) ||
+_winch__install_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch install commands' commands "$@"
+}
+(( $+functions[_winch__remove_commands] )) ||
+_winch__remove_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch remove commands' commands "$@"
+}
+(( $+functions[_winch__search_commands] )) ||
+_winch__search_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch search commands' commands "$@"
+}
+(( $+functions[_winch__sync_commands] )) ||
+_winch__sync_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch sync commands' commands "$@"
+}
+(( $+functions[_winch__upgrade_commands] )) ||
+_winch__upgrade_commands() {
+    local commands; commands=()
+    _describe -t commands 'winch upgrade commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_winch" ]; then
+    _winch "$@"
+else
+    compdef _winch winch
+fi
