@@ -1,22 +1,54 @@
 #!/usr/bin/env bash
 
+printf "\033[1;32mWinch Installation Script\033[0m\n\n"
+printf "\033[1mThis script requires sudo.\033[0m\n\n"
+
+# Prompt for sudo access at the start
+sudo -v
+
+# Keep sudo alive until the script finishes
+while true; do sudo -n true; sleep 60; done 2>/dev/null &
+
+# Define the URLs
 LINUX_LATEST_BINARY_URL="https://github.com/Winch-Team/winch/releases/download/v0.1.0/winch-gnu-linux-x86_64"
 MACOS_LATEST_BINARY_URL="https://github.com/Winch-Team/winch/releases/download/v0.1.0/winch-macos-x86_64"
 
-printf "\033[1;32mThis script will install Winch to the system. Continue? (Y/n) \033[0m"
+ZSH_COMPLETION_URL="https://raw.githubusercontent.com/Winch-Team/install-winch/main/completions/_zsh"
 
+# Ask for confirmation to proceed with installation
+printf "\033[1;32mThis script will install Winch to the system. Continue? (Y/n) \033[0m"
 read -r RESPONSE </dev/tty
 
 if [[ "$RESPONSE" == "y" ]] || [[ "$RESPONSE" == "Y" ]] || [[ -z "$RESPONSE" ]]; then
     # Green
     printf "\033[1;32mInstalling Winch...\033[0m\n"
 
+    # Ensure the destination directory exists
     mkdir -p "$HOME/.winch/bin"
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        curl -fsSL "$LINUX_LATEST_BINARY_URL" -o "$HOME/.winch/bin/winch"
+        if [ "$SHELL" = "/usr/bin/zsh" ]; then
+            mkdir -p "$HOME/.zsh/completions"
+
+            sudo curl -fsSL "$ZSH_COMPLETION_URL" -o "$HOME/.zsh/completions/_winch" || { echo "Failed to download Zsh completion script"; exit 1; }
+
+            if [[ -f "$HOME/.zshrc" ]]; then
+                echo "fpath+=~/.zsh/completions" >> "$HOME/.zshrc"
+                echo "autoload -Uz compinit && compinit" >> "$HOME/.zshrc"
+            fi
+        fi
+        curl -fsSL "$LINUX_LATEST_BINARY_URL" -o "$HOME/.winch/bin/winch" || { echo "Failed to download Linux binary"; exit 1; }
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        curl -fsSL "$MACOS_LATEST_BINARY_URL" -o "$HOME/.winch/bin/winch"
+        if [ "$SHELL" = "/usr/bin/zsh" ]; then
+            mkdir -p "$HOME/.zsh/completions"
+            curl -fsSL "$ZSH_COMPLETION_URL" -o "$HOME/.zsh/completions/_winch" || { echo "Failed to download Zsh completion script"; exit 1; }
+
+            if [[ -f "$HOME/.zshrc" ]]; then
+                echo "fpath+=~/.zsh/completions" >> "$HOME/.zshrc"
+                echo "autoload -Uz compinit && compinit" >> "$HOME/.zshrc"
+            fi
+        fi
+        curl -fsSL "$MACOS_LATEST_BINARY_URL" -o "$HOME/.winch/bin/winch" || { echo "Failed to download macOS binary"; exit 1; }
     else
         echo "Unsupported OS type: $OSTYPE"
         exit 1
@@ -24,8 +56,11 @@ if [[ "$RESPONSE" == "y" ]] || [[ "$RESPONSE" == "Y" ]] || [[ -z "$RESPONSE" ]];
 
     chmod +x "$HOME/.winch/bin/winch"
 
-    printf "\033[1;32mSUCCESS!\033[0m Winch is now installed on the machine. Last step: add this to your shell profile:\nexport PATH=\$PATH:\$HOME/.winch/bin/\n"
+    printf "\033[1;32mSUCCESS!\033[0m Winch is now installed on the machine. Last step: add this to your shell profile:\nexport PATH=\$PATH:\$HOME/.winch/bin/ and restart your shell\n"
 else
     printf "Exiting...\n"
     exit 1
 fi
+
+# End of script, stop the background sudo refresh
+trap 'kill $(jobs -p)' EXIT
