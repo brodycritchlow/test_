@@ -27,7 +27,10 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
     # Ensure the destination directory exists
     mkdir -p "$HOME/.winch/bin"
 
-    if [ "$(echo "$OSTYPE" | cut -c1-6)" = "linux-" ]; then
+    # Detect OS type using uname
+    OS_TYPE=$(uname)
+
+    if [ "$OS_TYPE" = "Linux" ]; then
         if [ "$SHELL" = "/usr/bin/zsh" ]; then
             mkdir -p "$HOME/.zsh/completions"
 
@@ -55,7 +58,7 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
             fi
         fi
         curl -fsSL "$LINUX_LATEST_BINARY_URL" -o "$HOME/.winch/bin/winch" || { echo "Failed to download Linux binary"; exit 1; }
-    elif [ "$(echo "$OSTYPE" | cut -c1-6)" = "darwin" ]; then
+    elif [ "$OS_TYPE" = "Darwin" ]; then
         if [ "$SHELL" = "/usr/bin/zsh" ]; then
             mkdir -p "$HOME/.zsh/completions"
             curl -fsSL "$ZSH_COMPLETION_URL" -o "$HOME/.zsh/completions/_winch" || { echo "Failed to download Zsh completion script"; exit 1; }
@@ -83,7 +86,7 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
         fi
         curl -fsSL "$MACOS_LATEST_BINARY_URL" -o "$HOME/.winch/bin/winch" || { echo "Failed to download macOS binary"; exit 1; }
     else
-        echo "Unsupported OS type: $OSTYPE"
+        echo "Unsupported OS type: $OS_TYPE"
         exit 1
     fi
 
