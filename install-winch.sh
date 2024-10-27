@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 printf "\033[1;32mWinch Installation Script\033[0m\n\n"
 printf "\033[1mThis script requires sudo.\033[0m\n\n"
@@ -18,7 +18,7 @@ BASH_COMPLETION_URL="https://raw.githubusercontent.com/Winch-Team/install-winch/
 
 # Ask for confirmation to proceed with installation
 printf "\033[1;32mThis script will install Winch to the system. Continue? (Y/n) \033[0m"
-read -r RESPONSE </dev/tty
+read RESPONSE </dev/tty
 
 if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
     # Green
@@ -27,13 +27,13 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
     # Ensure the destination directory exists
     mkdir -p "$HOME/.winch/bin"
 
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if [ "$(echo "$OSTYPE" | cut -c1-6)" = "linux-" ]; then
         if [ "$SHELL" = "/usr/bin/zsh" ]; then
             mkdir -p "$HOME/.zsh/completions"
 
             sudo curl -fsSL "$ZSH_COMPLETION_URL" -o "$HOME/.zsh/completions/_winch" || { echo "Failed to download Zsh completion script"; exit 1; }
 
-            if [[ -f "$HOME/.zshrc" ]]; then
+            if [ -f "$HOME/.zshrc" ]; then
                 echo "fpath+=~/.zsh/completions" >> "$HOME/.zshrc"
                 echo "autoload -Uz compinit && compinit" >> "$HOME/.zshrc"
             fi
@@ -42,23 +42,25 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
 
             sudo curl -fsSL "$BASH_COMPLETION_URL" -o "$HOME/.bash/completions/_winch.bash" || { echo "Failed to download Bash completion script"; exit 1; }
 
-            if [[ -f "$HOME/.bashrc" ]]; then
-                echo "if [ -d ~/.bash/completions ]; then" >> "$HOME/.bashrc"
-                echo "  for file in ~/.bash/completions/*.bash; do" >> "$HOME/.bashrc"
-                echo "    if [ -f \"\$file\" ]; then" >> "$HOME/.bashrc"
-                echo "      source \"\$file\"" >> "$HOME/.bashrc"
-                echo "    fi" >> "$HOME/.bashrc"
-                echo "  done" >> "$HOME/.bashrc"
-                echo "fi" >> "$HOME/.bashrc"
+            if [ -f "$HOME/.bashrc" ]; then
+                {
+                    echo "if [ -d ~/.bash/completions ]; then"
+                    echo "  for file in ~/.bash/completions/*.bash; do"
+                    echo "    if [ -f \"\$file\" ]; then"
+                    echo "      . \"\$file\""
+                    echo "    fi"
+                    echo "  done"
+                    echo "fi"
+                } >> "$HOME/.bashrc"
             fi
         fi
         curl -fsSL "$LINUX_LATEST_BINARY_URL" -o "$HOME/.winch/bin/winch" || { echo "Failed to download Linux binary"; exit 1; }
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
+    elif [ "$(echo "$OSTYPE" | cut -c1-6)" = "darwin" ]; then
         if [ "$SHELL" = "/usr/bin/zsh" ]; then
             mkdir -p "$HOME/.zsh/completions"
             curl -fsSL "$ZSH_COMPLETION_URL" -o "$HOME/.zsh/completions/_winch" || { echo "Failed to download Zsh completion script"; exit 1; }
 
-            if [[ -f "$HOME/.zshrc" ]]; then
+            if [ -f "$HOME/.zshrc" ]; then
                 echo "fpath+=~/.zsh/completions" >> "$HOME/.zshrc"
                 echo "autoload -Uz compinit && compinit" >> "$HOME/.zshrc"
             fi
@@ -67,14 +69,16 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
 
             sudo curl -fsSL "$BASH_COMPLETION_URL" -o "$HOME/.bash/completions/_winch.bash" || { echo "Failed to download Bash completion script"; exit 1; }
 
-            if [[ -f "$HOME/.bashrc" ]]; then
-                echo "if [ -d ~/.bash/completions ]; then" >> "$HOME/.bashrc"
-                echo "  for file in ~/.bash/completions/*.bash; do" >> "$HOME/.bashrc"
-                echo "    if [ -f \"\$file\" ]; then" >> "$HOME/.bashrc"
-                echo "      source \"\$file\"" >> "$HOME/.bashrc"
-                echo "    fi" >> "$HOME/.bashrc"
-                echo "  done" >> "$HOME/.bashrc"
-                echo "fi" >> "$HOME/.bashrc"
+            if [ -f "$HOME/.bashrc" ]; then
+                {
+                    echo "if [ -d ~/.bash/completions ]; then"
+                    echo "  for file in ~/.bash/completions/*.bash; do"
+                    echo "    if [ -f \"\$file\" ]; then"
+                    echo "      . \"\$file\""
+                    echo "    fi"
+                    echo "  done"
+                    echo "fi"
+                } >> "$HOME/.bashrc"
             fi
         fi
         curl -fsSL "$MACOS_LATEST_BINARY_URL" -o "$HOME/.winch/bin/winch" || { echo "Failed to download macOS binary"; exit 1; }
