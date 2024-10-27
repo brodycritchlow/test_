@@ -6,8 +6,9 @@ printf "\033[1mThis script requires sudo.\033[0m\n\n"
 # Prompt for sudo access at the start
 sudo -v
 
-# Keep sudo alive until the script finishes
+# Keep sudo alive until the script finishes, capturing the PID
 while true; do sudo -n true; sleep 60; done 2>/dev/null &
+SUDO_PID=$!
 
 # Define the URLs
 LINUX_LATEST_BINARY_URL="https://github.com/Winch-Team/winch/releases/download/v0.1.0/winch-gnu-linux-x86_64"
@@ -21,7 +22,6 @@ printf "\033[1;32mThis script will install Winch to the system. Continue? (Y/n) 
 read RESPONSE </dev/tty
 
 if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
-    # Green
     printf "\033[1;32mInstalling Winch...\033[0m\n"
 
     # Ensure the destination directory exists
@@ -33,7 +33,6 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
     if [ "$OS_TYPE" = "Linux" ]; then
         if [ "$SHELL" = "/usr/bin/zsh" ]; then
             mkdir -p "$HOME/.zsh/completions"
-
             sudo curl -fsSL "$ZSH_COMPLETION_URL" -o "$HOME/.zsh/completions/_winch" || { echo "Failed to download Zsh completion script"; exit 1; }
 
             if [ -f "$HOME/.zshrc" ]; then
@@ -42,7 +41,6 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
             fi
         elif [ "$SHELL" = "/bin/bash" ]; then
             mkdir -p "$HOME/.bash/completions"
-
             sudo curl -fsSL "$BASH_COMPLETION_URL" -o "$HOME/.bash/completions/_winch.bash" || { echo "Failed to download Bash completion script"; exit 1; }
 
             if [ -f "$HOME/.bashrc" ]; then
@@ -69,7 +67,6 @@ if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ] || [ -z "$RESPONSE" ]; then
             fi
         elif [ "$SHELL" = "/bin/bash" ]; then
             mkdir -p "$HOME/.bash/completions"
-
             sudo curl -fsSL "$BASH_COMPLETION_URL" -o "$HOME/.bash/completions/_winch.bash" || { echo "Failed to download Bash completion script"; exit 1; }
 
             if [ -f "$HOME/.bashrc" ]; then
@@ -99,4 +96,4 @@ else
 fi
 
 # End of script, stop the background sudo refresh
-trap 'kill $(jobs -p)' EXIT
+trap 'kill $SUDO_PID' EXIT
